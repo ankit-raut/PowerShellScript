@@ -1,0 +1,2 @@
+﻿
+"{0} MB" -f ((Get-ChildItem D:\DesignerImages\UserPhoto\A4911A7A-C220-4554-8F68-DDC56EE2F3BC\Customize\Standard\ -Recurse -include @("*.jpeg*","*.jpg","*.png")| Where-Object { $_.CreationTime -ge "01/01/2019" -and $_.CreationTime -le "02/20/2020" } | Measure-Object -Property Length -Sum -ErrorAction Stop).Sum / 1MB)

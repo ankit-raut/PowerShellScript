@@ -1,0 +1,86 @@
+﻿function Get-HugeDirStats($directory,$CompanyFolder,$FolderName) {
+    
+    function Calculate($dir, $stats)
+    {
+    $stats.Path = $directory
+
+        foreach ($f in [system.io.Directory]::EnumerateFiles($dir))
+        {
+        $fileinfo = (New-Object io.FileInfo $f) 
+        #check for 2015
+        if(($fileinfo.CreationTimeUtc -ge '01/01/2015') -AND ($fileinfo.CreationTimeUtc -le '12/31/2015'))
+        {        
+            $stats.Count_2015++
+            $stats.Size_2015 += $fileinfo.Length
+        }
+
+        #check for 2016
+        elseif(($fileinfo.CreationTimeUtc -ge '01/01/2016') -AND ($fileinfo.CreationTimeUtc -le '12/31/2016'))
+        {        
+            $stats.Count_2016++
+            $stats.Size_2016 += $fileinfo.Length
+        }
+          #check for 2017
+        elseif(($fileinfo.CreationTimeUtc -ge '01/01/2017') -AND ($fileinfo.CreationTimeUtc -le '12/31/2017'))
+        {        
+            $stats.Count_2017++
+            $stats.Size_2017 += $fileinfo.Length
+        }
+          #check for 2018
+        elseif(($fileinfo.CreationTimeUtc -ge '01/01/2018') -AND ($fileinfo.CreationTimeUtc -le '12/31/2018'))
+        {        
+            $stats.Count_2018++
+            $stats.Size_2018 += $fileinfo.Length
+        }
+          #check for 2019
+        elseif(($fileinfo.CreationTimeUtc -ge '01/01/2019') -AND ($fileinfo.CreationTimeUtc -le '12/31/2019'))
+        {        
+            $stats.Count_2019++
+            $stats.Size_2019 += $fileinfo.Length
+        }
+          #check for 2020
+        elseif(($fileinfo.CreationTimeUtc -ge '01/01/2020') -AND ($fileinfo.CreationTimeUtc -le '12/31/2020'))
+        {        
+            $stats.Count_2020++
+            $stats.Size_2020 += $fileinfo.Length
+        }
+        else{
+         $stats.Count_UnMatched++
+         $statsSize_Unmatched += $fileinfo.Length
+        }
+
+        }
+    }
+    $statistics = New-Object PsObject -Property @{Path = '';Count_2015 = 0;Count_2016 = 0;Count_2017 = 0;Count_2018 = 0;Count_2019 = 0;Count_2020 = 0;Count_UnMatched = 0; Size_2015 = [long]0;Size_2016 = [long]0;Size_2017 = [long]0;Size_2018 = [long]0;Size_2019 = [long]0;Size_2020 = [long]0; Size_Unmatched = [long]0}
+    Calculate $directory $statistics
+
+   $statistics = foreach ($Object in $statistics) {
+    # create an ordered dictionary object
+    $copy = New-Object System.Collections.Specialized.OrderedDictionary
+    # loop through the properties in order and add them to the ordered hash
+    $Object.PSObject.Properties | ForEach-Object { 
+        $copy.Add($_.Name, $_.Value)   # or use: $copy[$($_.Name)] = $_.Value
+    }
+    # emit a PSObject with the properties ordered, so it adds to the $Arr array
+    New-Object PSObject -Property $copy
+}
+
+    #Write-Host $statistics
+    Write-Host "==========================================================="
+    Write-Host ($statistics | Format-List | Out-String)
+    Write-Host "==========================================================="
+
+    $statistics | export-csv -notypeinformation -delimiter ',' -path D:\PowerShellScript\Reports\$CompanyFolder'_'$FolderName.csv
+
+}
+
+for ( $i = 0; $i -lt $args.count; $i++ ) {
+[string]$SourcePathStand = [string]::Format('D:\DesignerImages\UserPhoto\{0}\Customize\Standard\',$args[$i])
+Get-HugeDirStats $SourcePathStand $args[$i] "Standard"
+[string]$SourcePathThumb = [string]::Format('D:\DesignerImages\UserPhoto\{0}\Customize\Thumbnail\',$args[$i])
+Get-HugeDirStats $SourcePathThumb $args[$i] "Thumbnail"
+
+
+}
+
+
